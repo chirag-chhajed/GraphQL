@@ -5,9 +5,16 @@ import { GET_CLIENTS } from '../queries/clientQueries.js';
 // import { GET_PROJECTS } from '../queries/projectQueries';
 
 export default function ClientRow({ client }) {
-  const [deleteClient, {error}] = useMutation(DELETE_CLIENT, {
+  const [deleteClient] = useMutation(DELETE_CLIENT, {
     variables: { id: client.id },
-    refetchQueries: [{ query: GET_CLIENTS }]
+    // refetchQueries: [{ query: GET_CLIENTS }],
+    update(cache, {data: {deleteClient}}){
+      const {clients} = cache.readQuery({query: GET_CLIENTS});
+      cache.writeQuery({
+        query: GET_CLIENTS,
+        data: {clients: clients.filter(client => client.id !== deleteClient.id)}
+      })
+    }
   });
   return (
     <tr>
